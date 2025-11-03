@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frankenmuth Shop Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+        #map { height: 600px; width: 100%; border: 2px solid #333; border-radius: 10px; }
+        h1 { text-align: center; color: #2c5530; }
+        .info { text-align: center; margin-bottom: 20px; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>🏪 Frankenmuth Shop Directory</h1>
+    <div class="info">Click on the markers to learn more about each shop!</div>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map centered on Frankenmuth, MI
+        const map = L.map('map').setView([43.3314, -83.7388], 14);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Sample Frankenmuth shops data
+        const shops = [
+            {
+                coords: [43.3314, -83.7388],
+                name: "Bronner's Christmas Wonderland",
+                category: "Holiday Store",
+                description: "The world's largest Christmas store with over 50,000 decorative items."
+            },
+            {
+                coords: [43.3324, -83.7398],
+                name: "Bavarian Inn Restaurant",
+                category: "Restaurant",
+                description: "Famous for authentic German cuisine and family-style chicken dinners."
+            },
+            {
+                coords: [43.3304, -83.7378],
+                name: "Zehnder's Restaurant",
+                category: "Restaurant", 
+                description: "Historic restaurant known for world-famous chicken dinners since 1856."
+            },
+            {
+                coords: [43.3334, -83.7408],
+                name: "Frankenmuth River Place Shops",
+                category: "Shopping Center",
+                description: "Unique shops featuring local crafts, gifts, and specialty items."
+            },
+            {
+                coords: [43.3294, -83.7368],
+                name: "Frankenmuth Cheese Haus",
+                category: "Specialty Food",
+                description: "Premium cheeses, wines, and gourmet foods from around the world."
+            },
+            {
+                coords: [43.3344, -83.7418],
+                name: "Bavarian Inn Lodge",
+                category: "Hotel",
+                description: "German-themed lodge with indoor pools and family activities."
+            }
+        ];
+
+        // Add markers for each shop
+        shops.forEach(shop => {
+            const marker = L.marker(shop.coords).addTo(map);
+            marker.bindPopup(`
+                <h3>${shop.name}</h3>
+                <strong>${shop.category}</strong><br>
+                ${shop.description}
+            `);
+        });
+
+        // Add a custom icon for better visibility
+        const customIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<div style='background-color:#2c5530; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;'></div>",
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
+        });
+    </script>
+</body>
+</html>
