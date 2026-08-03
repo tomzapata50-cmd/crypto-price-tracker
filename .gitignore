@@ -66,6 +66,10 @@ venv.bak/
 crypto_prices.csv
 historical_data/
 
+# CoinGecko catalog cache (generated automatically)
+.coingecko_coin_catalog.json
+.coingecko_coin_catalog.tmp
+
 # OS
 .DS_Store
 Thumbs.db

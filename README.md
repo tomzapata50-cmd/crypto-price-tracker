@@ -1,185 +1,185 @@
-# 💰 Crypto Price Tracker - Real-Time Terminal Dashboard
+# The Three Amigos Crypto Price Tracker
 
-A powerful Python terminal application that tracks cryptocurrency prices in real-time with beautiful formatting, historical logging, and extensive customization options.
+A friendly Python terminal dashboard for checking live cryptocurrency prices,
+building custom watch lists, and saving price history to CSV.
 
-## ✨ Features
+The tracker uses CoinGecko's live catalog, so it can search thousands of current
+cryptocurrency listings instead of being limited to a short hard-coded list.
 
-- 🔄 **Real-Time Tracking**: Live cryptocurrency prices from CoinGecko API
-- 🎨 **Beautiful Terminal UI**: Colorized output with proper formatting and alignment
-- 📊 **Symbol Mapping**: Use common symbols (BTC, ETH, DOGE) or full CoinGecko IDs
-- 📈 **Change Tracking**: Shows price changes between polling intervals
-- 💾 **CSV Logging**: Historical price data logging with timestamps
-- ⚙️ **Configurable**: Customizable coins, refresh intervals, and output options
-- 🛡️ **Robust**: Graceful error handling for network issues and API failures
-- 🎯 **CLI Interface**: Full command-line argument support for automation
+## What it does
 
-## 🚀 Quick Start
+- Tracks Bitcoin, Ethereum, Dogecoin, Solana, and Litecoin by default.
+- Searches the live CoinGecko catalog by coin name or symbol.
+- Builds an interactive watch list of up to 50 coins.
+- Accepts common symbols such as `BTC`, `ETH`, `SOL`, `DOGE`, and `LTC`.
+- Displays live USD prices and movement since the previous check.
+- Refreshes automatically every 30 seconds.
+- Saves timestamped price history to a CSV file.
+- Handles network errors and closes cleanly with `Ctrl+C`.
+- Runs on Windows, macOS, and Linux.
 
-### Prerequisites
-- Python 3.7 or higher
-- Internet connection for API access
+## Quick start on Windows
 
-### Installation
+### 1. Download the project
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/tomzapata50-cmd/crypto-price-tracker.git
-   cd crypto-price-tracker
-   ```
+On the repository page, select **Code**, then **Download ZIP**. Extract the ZIP
+and open the `crypto-price-tracker` folder in Visual Studio Code.
 
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+You can also clone it with Git:
 
-3. **Run the tracker**
-   ```bash
-   python crypto_price_tracker.py
-   ```
-
-## 📖 Usage Examples
-
-### Basic Usage
-```bash
-# Track default coins (BTC, ETH, DOGE, SOL, LTC) with 30-second intervals
-python crypto_price_tracker.py
+```powershell
+git clone https://github.com/tomzapata50-cmd/crypto-price-tracker.git
+cd crypto-price-tracker
 ```
 
-### Custom Coins
-```bash
-# Track specific cryptocurrencies
-python crypto_price_tracker.py --coins BTC,ETH,ADA,DOT
+### 2. Install the two dependencies
 
-# Use full CoinGecko IDs for precise matching
-python crypto_price_tracker.py --coins bitcoin,ethereum,cardano
+Open the VS Code terminal in the project folder and enter:
+
+```powershell
+py -m pip install -r requirements.txt
 ```
 
-### One-Time Check
-```bash
-# Get current prices without continuous monitoring
-python crypto_price_tracker.py --once
+If the `py` command is unavailable, use:
+
+```powershell
+python -m pip install -r requirements.txt
 ```
 
-### Custom Configuration
-```bash
-# Custom refresh interval and CSV file
-python crypto_price_tracker.py --coins LTC,DOGE,SOL --interval 60 --csv my_prices.csv
+### 3. Run the tracker
 
-# Disable CSV logging and colors
-python crypto_price_tracker.py --no-csv --no-color
+```powershell
+py crypto_price_tracker.py
 ```
 
-## 💻 Sample Output
+Press `Ctrl+C` to stop it.
 
-```
---------------------------------------------------------------
-Crypto           Price (USD)        Change
---------------------------------------------------------------
-Bitcoin     $110,694.0000   +2.34%
-Ethereum    $3,912.9000    -1.12%
-Dogecoin        $0.1866    +5.67%
-Solana        $187.5500    +0.89%
-Litecoin       $99.5300    -0.45%
---------------------------------------------------------------
-Last updated: 2025-11-02 18:59:13
+## Choose from thousands of cryptocurrencies
+
+The interactive mode is the easiest way to make your own watch list:
+
+```powershell
+py crypto_price_tracker.py --interactive
 ```
 
-## 🔧 Command Line Options
+Type a name or symbol, such as `doge`, `xrp`, `shiba`, or `cardano`. The tracker
+shows matching listings and asks which numbered result you want. Press Enter on
+an empty search when the watch list is complete.
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--coins` | Comma-separated list of symbols or IDs | bitcoin,ethereum,dogecoin,solana,litecoin |
-| `--interval` | Refresh interval in seconds | 30 |
-| `--csv` | CSV file path for logging | crypto_prices.csv |
-| `--once` | Run once and exit | False |
-| `--no-csv` | Disable CSV logging | False |
-| `--no-color` | Disable colored output | False |
-| `--timeout` | API request timeout | 10 |
+The catalog is saved locally for one day to make later searches faster. Refresh
+it immediately with:
 
-## 📊 Supported Cryptocurrencies
-
-The tracker includes built-in symbol mapping for popular cryptocurrencies:
-
-| Symbol | Cryptocurrency | CoinGecko ID |
-|--------|----------------|--------------|
-| BTC | Bitcoin | bitcoin |
-| ETH | Ethereum | ethereum |
-| LTC | Litecoin | litecoin |
-| DOGE | Dogecoin | dogecoin |
-| SOL | Solana | solana |
-| ADA | Cardano | cardano |
-| XRP | Ripple | ripple |
-| BCH | Bitcoin Cash | bitcoin-cash |
-| DOT | Polkadot | polkadot |
-| LINK | Chainlink | chainlink |
-| BNB | Binance Coin | binancecoin |
-| USDT | Tether | tether |
-| USDC | USD Coin | usd-coin |
-| MATIC | Polygon | matic-network |
-| AVAX | Avalanche | avalanche-2 |
-| SHIB | Shiba Inu | shiba-inu |
-
-*You can also use any valid CoinGecko ID directly.*
-
-## 📁 Project Structure
-
+```powershell
+py crypto_price_tracker.py --interactive --refresh-catalog
 ```
+
+## Useful commands
+
+Run one price check and exit:
+
+```powershell
+py crypto_price_tracker.py --once
+```
+
+Search the catalog without starting the tracker:
+
+```powershell
+py crypto_price_tracker.py --search doge
+```
+
+Track selected symbols:
+
+```powershell
+py crypto_price_tracker.py --coins BTC,ETH,XRP,SOL,DOGE
+```
+
+Refresh every 60 seconds:
+
+```powershell
+py crypto_price_tracker.py --interval 60
+```
+
+Run without creating a CSV file:
+
+```powershell
+py crypto_price_tracker.py --once --no-csv
+```
+
+Choose a different CSV filename:
+
+```powershell
+py crypto_price_tracker.py --csv my_crypto_history.csv
+```
+
+## Command reference
+
+| Option | Purpose | Default |
+| --- | --- | --- |
+| `--coins`, `-c` | Comma-separated symbols or CoinGecko IDs | BTC, ETH, DOGE, SOL, LTC |
+| `--interactive`, `-I` | Search and select coins interactively | Off |
+| `--search TEXT` | Search the full catalog and exit | Off |
+| `--search-limit NUMBER` | Maximum search results shown | 20 |
+| `--refresh-catalog` | Download the latest coin catalog | Off |
+| `--interval`, `-i` | Seconds between price checks | 30 |
+| `--timeout`, `-t` | Network timeout in seconds | 10 |
+| `--csv`, `-o` | CSV history filename | `crypto_prices.csv` |
+| `--no-csv` | Disable CSV history | Off |
+| `--once` | Check prices once and exit | Off |
+| `--no-color` | Disable terminal colors | Off |
+
+See the built-in help at any time:
+
+```powershell
+py crypto_price_tracker.py --help
+```
+
+## Example output
+
+```text
+====================================================================
+             THE THREE AMIGOS • CRYPTO PRICE TRACKER
+           Live prices • flexible coin search • CSV history
+====================================================================
+Tracking: bitcoin, ethereum, dogecoin, solana, litecoin
+
+Cryptocurrency                         Price (USD)  Since last check
+--------------------------------------------------------------------
+Bitcoin (BTC)                          $64,787.00               N/A
+Ethereum (ETH)                          $1,873.28               N/A
+Dogecoin (DOGE)                         $0.072400               N/A
+Solana (SOL)                             $76.2000               N/A
+Litecoin (LTC)                           $47.7400               N/A
+--------------------------------------------------------------------
+```
+
+The movement column begins showing changes after the second price check.
+
+## Project files
+
+```text
 crypto-price-tracker/
-├── crypto_price_tracker.py    # Main application
-├── crypto_prices.csv         # Generated price history (CSV)
-├── requirements.txt          # Python dependencies
-├── README.md                # This file
-└── .gitignore               # Git ignore rules
+├── crypto_price_tracker.py  # Main application
+├── requirements.txt         # Python dependencies
+├── README.md                # Setup and usage guide
+└── .gitignore               # Excludes generated and local files
 ```
 
-## 🛠️ Technical Features
+Generated CSV files and the downloaded catalog cache are intentionally excluded
+from Git so normal use does not clutter the repository.
 
-- **API Integration**: CoinGecko API for reliable cryptocurrency data
-- **Error Handling**: Comprehensive network and API error management
-- **Data Persistence**: CSV logging with append mode for historical analysis
-- **Terminal Formatting**: Colorama for cross-platform colored output
-- **Type Safety**: Full type hints for better code maintainability
-- **CLI Framework**: Argparse for robust command-line interface
+## Technology
 
-## 🔄 Automation Ideas
+- Python 3.9+
+- `requests` for CoinGecko API calls
+- `colorama` for cross-platform terminal colors
+- `argparse`, `csv`, and `json` from the Python standard library
 
-### Scheduled Monitoring
-```bash
-# Run every hour using cron (Linux/Mac)
-0 * * * * /usr/bin/python3 /path/to/crypto_price_tracker.py --once --csv hourly_prices.csv
+## Data source and disclaimer
 
-# Run every 15 minutes using Windows Task Scheduler
-python crypto_price_tracker.py --once --csv regular_monitoring.csv
-```
-
-### Data Analysis
-The CSV output is perfect for:
-- Price trend analysis
-- Historical performance tracking
-- Integration with data visualization tools
-- Building trading algorithms
-
-## 🤝 Contributing
-
-Contributions are welcome! Ideas for enhancement:
-- Additional cryptocurrency exchanges
-- Price alerts and notifications
-- Chart visualization
-- Portfolio tracking
-- Price prediction models
-
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## ⚠️ Disclaimer
-
-This tool is for educational and informational purposes only. Cryptocurrency markets are highly volatile. Always do your own research before making investment decisions.
-
-## 🙏 Acknowledgments
-
-- [CoinGecko](https://www.coingecko.com/) for providing free cryptocurrency data API
-- [Colorama](https://pypi.org/project/colorama/) for cross-platform colored terminal output
+Market data comes from the CoinGecko API. A returned price can be delayed,
+missing, or temporarily unavailable. This project is an educational price
+tracker, not financial advice or an automated trading system.
 
 ---
-Made with ❤️ for the crypto community
+
+Built by **Tom, Argon & Echosync — The Three Amigos**.
