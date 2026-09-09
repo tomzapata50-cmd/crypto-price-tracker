@@ -54,7 +54,9 @@
         border: 1px solid #dcdcdc;
         border-radius: 24px;
         padding: 10px 20px;
-        font: 600 14px Arial, sans-serif;
+        font:
+          600 14px Arial,
+          sans-serif;
         cursor: pointer;
       }
       .filter-btn:first-child {
@@ -78,6 +80,33 @@
         color: #666;
         margin: 0 0 16px;
       }
+      .directions-controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .directions-controls select,
+      .directions-controls button {
+        padding: 10px 14px;
+        font: inherit;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      .directions-controls button {
+        background: #2c5530;
+        color: white;
+        cursor: pointer;
+      }
+      .directions-controls button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .directions-controls :focus-visible {
+        outline: 3px solid #0056b3;
+        outline-offset: 3px;
+      }
       .user-location-dot {
         box-sizing: border-box;
         background: #1677ff;
@@ -94,6 +123,7 @@
     <div class="info">Click on the markers to learn more about each shop!</div>
     <div class="location-controls">
       <button id="locate" type="button">Show my location</button>
+      <button id="show-highlight" type="button" aria-controls="map">Show Bav Splash Swimming</button>
       <button id="stop-location" type="button" hidden>
         Stop location tracking
       </button>
@@ -102,13 +132,70 @@
       </p>
     </div>
     <div class="filter-container" role="group" aria-label="Filter places">
-      <button type="button" class="filter-btn active" data-category="all" aria-pressed="true" aria-controls="map">All Places</button>
-      <button type="button" class="filter-btn" data-category="food" aria-pressed="false" aria-controls="map">Dining</button>
-      <button type="button" class="filter-btn" data-category="shopping" aria-pressed="false" aria-controls="map">Shopping</button>
-      <button type="button" class="filter-btn" data-category="sights" aria-pressed="false" aria-controls="map">Attractions</button>
-      <button type="button" class="filter-btn" data-category="lodging" aria-pressed="false" aria-controls="map">Lodging</button>
+      <button
+        type="button"
+        class="filter-btn active"
+        data-category="all"
+        aria-pressed="true"
+        aria-controls="map"
+      >
+        All Places
+      </button>
+      <button
+        type="button"
+        class="filter-btn"
+        data-category="food"
+        aria-pressed="false"
+        aria-controls="map"
+      >
+        Dining
+      </button>
+      <button
+        type="button"
+        class="filter-btn"
+        data-category="shopping"
+        aria-pressed="false"
+        aria-controls="map"
+      >
+        Shopping
+      </button>
+      <button
+        type="button"
+        class="filter-btn"
+        data-category="sights"
+        aria-pressed="false"
+        aria-controls="map"
+      >
+        Attractions
+      </button>
+      <button
+        type="button"
+        class="filter-btn"
+        data-category="lodging"
+        aria-pressed="false"
+        aria-controls="map"
+      >
+        Lodging
+      </button>
     </div>
     <p id="filter-status" role="status" aria-live="polite"></p>
+    <!-- Dropdown to select where they want to go -->
+    <div style="text-align: center; margin-bottom: 16px;">
+      <label for="destination-select" style="font-weight: bold; margin-right: 8px;">Where do you want to go?</label>
+      <select id="destination-select" style="padding: 8px; font-size: 14px; border-radius: 4px; max-width: 100%;">
+        <option value="">-- Select a Shop or Restaurant --</option>
+      </select>
+      <p id="routing-distance" role="status" aria-live="polite" style="font-weight: bold; color: #2c5530; margin-top: 8px;"></p>
+      <div class="directions-controls">
+        <label for="travel-mode">Travel by</label>
+        <select id="travel-mode">
+          <option value="walking">Walking</option>
+          <option value="driving">Driving</option>
+        </select>
+        <button id="get-directions" type="button" aria-describedby="directions-hint" disabled>Get directions</button>
+      </div>
+      <p id="directions-hint">Select a destination, then open directions in Google Maps (new tab).</p>
+    </div>
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -120,6 +207,23 @@
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors",
       }).addTo(map);
+
+      // Approximate screenshot location, northeast of the lodge marker.
+      const highlightedCoords = [43.32668, -83.73612];
+      const highlightedSpot = L.marker(highlightedCoords, {
+        title: "Bav Splash Swimming",
+      })
+        .addTo(map)
+        .bindTooltip("Bav Splash Swimming")
+        .bindPopup(
+          "<strong>Bav Splash Swimming</strong><br>Near Bavarian Inn Lodge.<br>Approximate position based on your screenshot.",
+        );
+
+      document.getElementById("show-highlight").addEventListener("click", () => {
+        if (!map.hasLayer(highlightedSpot)) filterPlaces("all");
+        map.setView(highlightedCoords, 18);
+        highlightedSpot.openPopup();
+      });
 
       // Sample Frankenmuth shops data
       const shops = [
@@ -171,11 +275,20 @@
           description:
             "German-themed lodge with indoor pools and family activities.",
         },
+        {
+          coords: highlightedCoords,
+          name: "Bav Splash Swimming",
+          category: "Swimming",
+          filters: ["sights"],
+          description:
+            "Near Bavarian Inn Lodge. Approximate position based on your screenshot.",
+          existingMarker: highlightedSpot,
+        },
       ];
 
       // Add markers for each shop
       const shopMarkers = shops.map((shop) => {
-        const marker = L.marker(shop.coords).addTo(map);
+        const marker = shop.existingMarker || L.marker(shop.coords).addTo(map);
         marker.bindPopup(`
                 <h3>${shop.name}</h3>
                 <strong>${shop.category}</strong><br>
@@ -207,7 +320,9 @@
       }
 
       filterButtons.forEach((button) => {
-        button.addEventListener("click", () => filterPlaces(button.dataset.category));
+        button.addEventListener("click", () =>
+          filterPlaces(button.dataset.category),
+        );
       });
       filterPlaces("all");
 
@@ -224,6 +339,52 @@
       let accuracyCircle = null;
       let centerOnNextFix = false;
 
+      const destinationSelect = document.getElementById("destination-select");
+      const routingDistance = document.getElementById("routing-distance");
+      const travelMode = document.getElementById("travel-mode");
+      const directionsButton = document.getElementById("get-directions");
+      shops.forEach((shop, index) => {
+        const option = document.createElement("option");
+        option.value = String(index);
+        option.textContent = shop.name;
+        destinationSelect.appendChild(option);
+      });
+
+      function updateDestinationDistance() {
+        if (destinationSelect.value === "") {
+          routingDistance.textContent = "";
+          return;
+        }
+        if (!locationMarker) {
+          routingDistance.textContent = 'Click "Show my location" to see the distance to your destination.';
+          return;
+        }
+        const shop = shops[Number(destinationSelect.value)];
+        const meters = locationMarker.getLatLng().distanceTo(L.latLng(shop.coords));
+        routingDistance.textContent = `Straight-line distance to ${shop.name}: ${(meters / 1609.344).toFixed(2)} miles (not walking or driving distance).`;
+      }
+
+      destinationSelect.addEventListener("change", () => {
+        directionsButton.disabled = destinationSelect.value === "";
+        updateDestinationDistance();
+        if (destinationSelect.value === "") return;
+        const { shop, marker } = shopMarkers[Number(destinationSelect.value)];
+        if (!map.hasLayer(marker)) filterPlaces("all");
+        map.setView(shop.coords, 17);
+        marker.openPopup();
+      });
+
+      directionsButton.addEventListener("click", () => {
+        if (destinationSelect.value === "") return;
+        const shop = shops[Number(destinationSelect.value)];
+        const url = new URL("https://www.google.com/maps/dir/");
+        url.searchParams.set("api", "1");
+        url.searchParams.set("destination", shop.coords.join(","));
+        url.searchParams.set("travelmode", travelMode.value);
+        // Let Google Maps use the current location or ask for a starting point.
+        window.open(url.toString(), "_blank", "noopener,noreferrer");
+      });
+
       function stopTracking() {
         if (watchId !== null) navigator.geolocation.clearWatch(watchId);
         watchId = null;
@@ -231,6 +392,7 @@
         if (accuracyCircle) map.removeLayer(accuracyCircle);
         locationMarker = null;
         accuracyCircle = null;
+        updateDestinationDistance();
         stopButton.hidden = true;
         locateButton.textContent = "Show my location";
       }
@@ -286,6 +448,7 @@
             locationMarker.setPopupContent(
               `You are here<br>Estimated accuracy: ${Math.round(accuracy)} meters`,
             );
+            updateDestinationDistance();
             locationStatus.textContent = `Location updated ${new Date(position.timestamp).toLocaleTimeString()}. Estimated accuracy: ${Math.round(accuracy)} meters. The blue circle shows the accuracy area.`;
             locateButton.textContent = "Center on my location";
             if (centerOnNextFix) {
