@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frankenmuth Shop Map</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: #f6f7f3;
+        color: #23382c;
+        font-family: Arial, sans-serif;
+        line-height: 1.5;
+      }
+      .visitor-header,
+      .visitor-controls,
+      #map {
+        max-width: 1400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .visitor-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+        align-items: center;
+        gap: 24px;
+        margin-bottom: 20px;
+      }
+      .hero-image {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 3 / 1;
+        max-height: 200px;
+        object-fit: cover;
+        border-radius: 16px;
+      }
+      .eyebrow {
+        margin: 0 0 4px;
+        color: #536653;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      h1 {
+        margin: 0;
+        color: #285c3b;
+        font-size: clamp(26px, 4vw, 36px);
+        line-height: 1.2;
+      }
+      .info {
+        margin: 8px 0 0;
+        color: #536158;
+      }
+      .visitor-controls {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        background: white;
+        border: 1px solid #dce3d8;
+        border-radius: 16px;
+        margin-bottom: 18px;
+        box-shadow: 0 4px 18px #23382c08;
+      }
+      .control-panel {
+        padding: 22px;
+        min-width: 0;
+      }
+      .control-panel + .control-panel {
+        border-left: 1px solid #e5e9e1;
+      }
+      h2 {
+        font-size: 18px;
+        margin: 0 0 12px;
+      }
+      button,
+      select {
+        font: inherit;
+        min-height: 44px;
+        border: 1px solid #c7d3c6;
+        border-radius: 9px;
+      }
+      button {
+        cursor: pointer;
+        font-weight: 600;
+        padding: 10px 14px;
+        background: #fff;
+        color: #285c3b;
+      }
+      button:hover {
+        background: #edf4ea;
+      }
+      button:focus-visible,
+      select:focus-visible {
+        outline: 3px solid #0056b3;
+        outline-offset: 3px;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .location-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      #locate {
+        background: #edf4ea;
+        border-color: #b9cdb4;
+      }
+      #stop-location {
+        font-size: 14px;
+      }
+      #location-status,
+      #directions-hint,
+      #filter-status {
+        color: #58665d;
+        font-size: 13px;
+        margin: 10px 0 0;
+      }
+      .filter-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 18px;
+      }
+      .filter-btn {
+        border-radius: 24px;
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+      .filter-btn.active {
+        background: #285c3b;
+        color: #fff;
+        border-color: #285c3b;
+      }
+      label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+      select {
+        background: #fff;
+        color: #23382c;
+        padding: 10px 12px;
+        width: 100%;
+      }
+      .directions-controls {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+        gap: 10px;
+        align-items: end;
+        margin-top: 12px;
+      }
+      #get-directions {
+        background: #285c3b;
+        color: white;
+        border-color: #285c3b;
+      }
+      #get-directions:hover:not(:disabled) {
+        background: #1c462b;
+      }
+      #get-directions:disabled,
+      #open-google-maps:disabled {
+        background: #e7ebe4;
+        color: #606a61;
+        border-color: #dce3d8;
+        cursor: not-allowed;
+      }
+      #routing-distance {
+        color: #285c3b;
+        font-size: 13px;
+        margin: 10px 0 0;
+      }
+      #routing-distance:empty {
+        margin: 0;
+      }
+      #map {
+        height: 600px;
+        width: 100%;
+        border: 1px solid #b9c6b5;
+        border-radius: 14px;
+      }
+      .user-location-dot {
+        box-sizing: border-box;
+        background: #1677ff;
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow:
+          0 0 0 2px #1677ff,
+          0 2px 8px #3338;
+      }
+      .hero-copy,
+      .directions-controls > div,
+      button,
+      select {
+        min-width: 0;
+        max-width: 100%;
+      }
+      .hero-copy,
+      .control-panel {
+        overflow-wrap: anywhere;
+      }
+      #open-google-maps {
+        margin-top: 12px;
+      }
+      @media (max-width: 900px) {
+        body {
+          padding: 14px;
+        }
+        .visitor-header {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 16px;
+        }
+        .visitor-controls {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .control-panel {
+          padding: 18px;
+        }
+        .control-panel + .control-panel {
+          border-left: 0;
+          border-top: 1px solid #e5e9e1;
+        }
+      }
+      @media (max-width: 720px) {
+        body {
+          font-size: 16px;
+        }
+        button,
+        select,
+        .filter-btn,
+        #stop-location {
+          min-height: 48px;
+          font-size: 16px;
+        }
+        label,
+        #location-status,
+        #directions-hint,
+        #filter-status,
+        #routing-distance {
+          font-size: 16px;
+        }
+        .directions-controls {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .location-actions button,
+        #open-google-maps {
+          width: 100%;
+        }
+        .filter-container {
+          gap: 8px;
+        }
+        .filter-btn {
+          flex: 1 1 auto;
+        }
+        #map {
+          width: 100%;
+          height: 65vh;
+          height: 65svh;
+          min-height: 360px;
+        }
+        /* Leave room for page padding, popup margins and Leaflet auto-pan. */
+        .leaflet-popup-content {
+          max-width: calc(100vw - 104px);
+          max-height: 280px;
+          max-height: min(280px, 45svh);
+          margin: 40px 18px 18px;
+          overflow-y: auto;
+          overflow-wrap: anywhere;
+          font-size: 16px;
+          line-height: 1.5;
+        }
+        .leaflet-popup-content a {
+          display: inline-block;
+          max-width: 100%;
+          min-height: 44px;
+          padding-top: 10px;
+          padding-bottom: 10px;
+        }
+        .leaflet-container a.leaflet-popup-close-button {
+          width: 44px;
+          height: 44px;
+          font-size: 24px;
+          line-height: 44px;
+        }
+        .leaflet-touch .leaflet-bar a {
+          width: 44px;
+          height: 44px;
+          line-height: 44px;
+        }
+        .leaflet-control-attribution {
+          max-width: calc(100vw - 52px);
+          white-space: normal;
+          overflow-wrap: anywhere;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="visitor-header">
+      <div class="hero-copy">
+        <p class="eyebrow">Your guide to Frankenmuth</p>
+        <h1>Make the most of your visit</h1>
+        <p class="info">
+          Find a place to eat, shop, stay or explore. Tap a map icon for
+          details.
+        </p>
+      </div>
+      <img
+        class="hero-image"
+        src="images/frankenmuth-hero.jpg"
+        alt="Frankenmuth, Michigan"
+        width="900"
+        height="300"
+      />
+    </header>
+    <div class="visitor-controls">
+      <section class="control-panel" aria-labelledby="explore-heading">
+        <h2 id="explore-heading">Explore the map</h2>
+        <div class="location-controls">
+          <div class="location-actions">
+            <button id="locate" type="button" aria-controls="map">
+              Show my location
+            </button>
+            <button id="show-highlight" type="button" aria-controls="map">
+              Find the waterpark
+            </button>
+            <button id="stop-location" type="button" hidden>
+              Stop sharing location
+            </button>
+          </div>
+          <p id="location-status" role="status" aria-live="polite">
+            Allow location access to see where you are on the map.
+          </p>
+        </div>
+        <div
+          class="filter-container"
+          role="group"
+          aria-label="Browse places by category"
+        >
+          <button
+            type="button"
+            class="filter-btn active"
+            data-category="all"
+            aria-pressed="true"
+            aria-controls="map"
+          >
+            All places
+          </button>
+          <button
+            type="button"
+            class="filter-btn"
+            data-category="food"
+            aria-pressed="false"
+            aria-controls="map"
+          >
+            Dining
+          </button>
+          <button
+            type="button"
+            class="filter-btn"
+            data-category="shopping"
+            aria-pressed="false"
+            aria-controls="map"
+          >
+            Shopping
+          </button>
+          <button
+            type="button"
+            class="filter-btn"
+            data-category="sights"
+            aria-pressed="false"
+            aria-controls="map"
+          >
+            Attractions
+          </button>
+          <button
+            type="button"
+            class="filter-btn"
+            data-category="lodging"
+            aria-pressed="false"
+            aria-controls="map"
+          >
+            Lodging
+          </button>
+        </div>
+        <p id="filter-status" role="status" aria-live="polite"></p>
+      </section>
+      <section class="control-panel" aria-labelledby="visit-heading">
+        <h2 id="visit-heading">Plan your visit</h2>
+        <label for="destination-select">Where would you like to go?</label>
+        <select id="destination-select">
+          <option value="">Choose a place to visit</option>
+        </select>
+        <div class="directions-controls">
+          <div>
+            <label for="travel-mode">How will you get there?</label>
+            <select id="travel-mode">
+              <option value="walking">Walking</option>
+              <option value="driving">Driving</option>
+            </select>
+          </div>
+          <button
+            id="get-directions"
+            type="button"
+            aria-describedby="directions-hint"
+            disabled
+          >
+            Get Route
+          </button>
+        </div>
+        <p id="directions-hint">
+          Tap Show My Location, choose a destination, then tap Get Route. The
+          line shows a direct connection, not a street or walking path.
+        </p>
+        <button id="open-google-maps" type="button" disabled>
+          Open in Google Maps
+        </button>
+        <p class="info">
+          Directions open in a new tab or the Google Maps app. Switch back to the FrankenApp tab/app to return.
+        </p>
+        <p id="routing-distance" role="status" aria-live="polite"></p>
+      </section>
+    </div>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      // Initialize the map centered on Frankenmuth, MI
+      const map = L.map("map").setView([43.3314, -83.7388], 14);
+
+      // Add OpenStreetMap tiles
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+      }).addTo(map);
+
+      const swimmerIcon = L.icon({
+        iconUrl: "icons/swimmer.svg",
+        iconSize: [24, 24],
+        iconAnchor: [12, 24],
+        popupAnchor: [0, -20],
+      });
+
+      // Approximate screenshot location, northeast of the lodge marker.
+      const highlightedCoords = [43.327461897, -83.736458217];
+      const highlightedSpot = L.marker(highlightedCoords, {
+        title: "Bav Splash Swimming",
+        icon: swimmerIcon,
+      })
+        .addTo(map)
+        .bindTooltip("Bav Splash Swimming")
+        .bindPopup(
+          "<strong>Bav Splash Swimming</strong><br>Near Bavarian Inn Lodge.<br>Approximate position based on your screenshot.",
+        );
+
+      document
+        .getElementById("show-highlight")
+        .addEventListener("click", () => {
+          if (!map.hasLayer(highlightedSpot)) filterPlaces("all");
+          map.setView(highlightedCoords, 18);
+          highlightedSpot.openPopup();
+        });
+
+      // Frankenmuth places data
+      const places = [
+        {
+          coords: [43.314147955, -83.737055267],
+          name: "Bronner's Christmas Wonderland",
+          iconUrl: "icons/christmas-ornament.svg",
+          category: "Holiday Store",
+          filters: ["shopping", "sights"],
+          description:
+            "The world's largest Christmas store with over 50,000 decorative items.",
+        },
+        {
+          coords: [43.326772, -83.739852],
+          name: "Bavarian Inn Restaurant",
+          iconUrl: "icons/chicken-dinner.svg",
+          category: "Restaurant",
+          filters: ["food"],
+          description:
+            "Famous for authentic German cuisine and family-style chicken dinners.",
+        },
+        {
+          coords: [43.326908, -83.741101],
+          name: "Zehnder's Restaurant",
+          category: "Restaurant",
+          filters: ["food"],
+          description:
+            "Historic restaurant known for world-famous chicken dinners since 1856.",
+        },
+        {
+          coords: [43.329000025, -83.738961351],
+          name: "Frankenmuth Cheese Haus",
+          iconUrl: "icons/mouse-cheese.svg",
+          category: "Specialty Food",
+          filters: ["shopping"],
+          description:
+            "Premium cheeses, wines, and gourmet foods from around the world.",
+        },
+        {
+          coords: [43.325876, -83.736763],
+          name: "Bavarian Inn Lodge",
+          category: "Hotel",
+          filters: ["lodging"],
+          description:
+            "German-themed lodge with indoor pools and family activities.",
+        },
+        {
+          coords: [43.324621153, -83.739506368],
+          name: "Riverboat",
+          iconUrl: "icons/boat.svg",
+          category: "Riverboat",
+          filters: ["sights"],
+          description:
+            "On the Cass River near River Place Shops. Approximate location based on your screenshot.",
+        },
+        {
+          coords: [43.32299, -83.7386],
+          name: "Golden Ticket Trolley",
+          iconUrl: "icons/trolley.svg",
+          category: "Trolley",
+          filters: ["sights"],
+          description: "Trolley stop by Frankenmuth River Place Shops.",
+        },
+        {
+          coords: highlightedCoords,
+          name: "Bav Splash Swimming",
+          category: "Swimming",
+          filters: ["sights"],
+          description:
+            "Near Bavarian Inn Lodge. Approximate position based on your screenshot.",
+          existingMarker: highlightedSpot,
+        },
+      ];
+
+      function getIcon(category) {
+        switch (category) {
+          case "Riverboat":
+            return "https://maps.gstatic.com/mapfiles/ms2/micons/ferry.png";
+          case "Christmas":
+          case "Holiday Store":
+            return "https://maps.gstatic.com/mapfiles/ms2/micons/arts.png";
+          case "Dining":
+          case "Restaurant":
+            return "https://maps.gstatic.com/mapfiles/ms2/micons/restaurant.png";
+          case "Shopping":
+          case "Shopping Center":
+          case "Specialty Food":
+            return "https://maps.gstatic.com/mapfiles/ms2/micons/shoppingbag.png";
+          case "Attractions":
+          case "Swimming":
+            return "https://maps.gstatic.com/mapfiles/ms2/micons/arts.png";
+          case "Lodging":
+          case "Hotel":
+            return "https://maps.gstatic.com/mapfiles/ms2/micons/lodging.png";
+          default:
+            return "https://maps.gstatic.com/mapfiles/ms2/micons/blue.png";
+        }
+      }
+
+      // Accept either the existing coords array or a place's lat/lng fields.
+      function addMarker(place) {
+        const coords = place.coords || [place.lat, place.lng];
+        const marker =
+          place.existingMarker || L.marker(coords, { title: place.name });
+        marker.setIcon(
+          marker === highlightedSpot
+            ? swimmerIcon
+            : L.icon({
+                iconUrl: place.iconUrl || getIcon(place.category),
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32],
+                tooltipAnchor: [0, -24],
+              }),
+        );
+        return marker.addTo(map);
+      }
+
+      // Add category icons to new and existing shop markers.
+      const shopMarkers = [];
+      places.forEach((place) => {
+        const marker = addMarker(place);
+        marker.bindPopup(
+          place.name === "Bavarian Inn Lodge"
+            ? `
+                <h3 style="margin: 0 0 8px;">Bavarian Inn Lodge</h3>
+                <div style="line-height: 1.5;">
+                  <div>&#128719; Lodging</div>
+                  <div>&#128205; 1 Covered Bridge Lane</div>
+                  <div>&#128339; Check-in: <strong>4:00 PM</strong></div>
+                  <div>&#128346; Check-out: <strong>11:00 AM</strong></div>
+                  <div>&#128222; <a href="tel:+18556527200">855-652-7200</a></div>
+                  <div>&#128166; Waterpark access included for registered guests</div>
+                  <div>&#128246; Free Wi-Fi</div>
+                  <div>&#127918; Family Fun Center / arcade</div>
+                  <div>&#128656; Shuttle service to Bavarian Inn Restaurant and River Place Shops</div>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+                  <a href="https://www.bavarianinn.com/reservations/"
+                     target="_blank" rel="noopener noreferrer"
+                     aria-label="Book a Room at Bavarian Inn Lodge (opens in a new tab)"
+                     style="display: inline-block; padding: 10px 12px; background: #285c3b; color: #fff; border-radius: 5px; font-weight: 700; text-decoration: none;">Book a Room</a>
+                  <a href="https://www.google.com/maps/dir/?api=1&amp;destination=${place.coords.join(",")}"
+                     target="_blank" rel="noopener noreferrer"
+                     aria-label="Get Directions to Bavarian Inn Lodge (opens in a new tab)"
+                     style="display: inline-block; padding: 10px 12px; background: #edf4ea; color: #285c3b; border-radius: 5px; font-weight: 700; text-decoration: none;">Get Directions</a>
+                </div>
+            `
+            : `
+                <h3>${place.name}</h3>
+                <strong>${place.category}</strong><br>
+                ${place.description}
+            `,
+        );
+        shopMarkers.push({ shop: place, marker });
+      });
+
+      // Reuse the River Place Shops marker in the destination list.
+      const riverPlaceMarker = L.marker([43.323577, -83.739647], {
+        title: "Frankenmuth River Place Shops",
+        icon: L.icon({
+          iconUrl: "icons/river-place-shopping.svg",
+          iconSize: [32, 32],
+          iconAnchor: [16, 32],
+          popupAnchor: [0, -32],
+          tooltipAnchor: [0, -24],
+        }),
+      })
+        .addTo(map)
+        .bindPopup(
+          `<h3 style="margin: 0 0 8px;">Frankenmuth River Place Shops</h3>
+           <div style="line-height: 1.5;">
+             <div>&#128717; Shopping &amp; Dining</div>
+             <div>&#128205; 925 S Main St</div>
+             <div>&#128338; Hours: <a href="https://frankenmuthriverplace.com/hours/" target="_blank" rel="noopener noreferrer">View current hours</a></div>
+             <div>&#127980; 40+ shops &amp; attractions</div>
+             <div>&#127860; Dining</div>
+             <div>&#127873; Specialty shops</div>
+             <div>&#128651; Trolley / nearby attractions</div>
+           </div>
+           <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+             <a href="https://www.google.com/maps/dir/?api=1&amp;destination=43.323577,-83.739647"
+                target="_blank" rel="noopener noreferrer"
+                aria-label="Get Directions to Frankenmuth River Place Shops (opens in a new tab)"
+                style="display: inline-block; padding: 10px 12px; background: #edf4ea; color: #285c3b; border-radius: 5px; font-weight: 700; text-decoration: none;">&#128205; Get Directions</a>
+             <a href="https://frankenmuthriverplace.com/directory/"
+                target="_blank" rel="noopener noreferrer"
+                aria-label="Explore Shops at Frankenmuth River Place Shops (opens in a new tab)"
+                style="display: inline-block; padding: 10px 12px; background: #285c3b; color: #fff; border-radius: 5px; font-weight: 700; text-decoration: none;">Explore Shops</a>
+           </div>`,
+        );
+
+      const riverPlaceShop = {
+        name: "Frankenmuth River Place Shops",
+        coords: [
+          riverPlaceMarker.getLatLng().lat,
+          riverPlaceMarker.getLatLng().lng,
+        ],
+        category: "Shopping & Dining",
+        filters: ["shopping", "food"],
+      };
+      places.push(riverPlaceShop);
+      shopMarkers.push({ shop: riverPlaceShop, marker: riverPlaceMarker });
+
+      const filterButtons = document.querySelectorAll(".filter-btn");
+      const filterStatus = document.getElementById("filter-status");
+
+      function filterPlaces(category) {
+        let visibleCount = 0;
+        shopMarkers.forEach(({ shop, marker }) => {
+          const visible = category === "all" || shop.filters.includes(category);
+          if (visible) {
+            if (!map.hasLayer(marker)) marker.addTo(map);
+            visibleCount += 1;
+          } else if (map.hasLayer(marker)) {
+            map.removeLayer(marker);
+          }
+        });
+        filterButtons.forEach((button) => {
+          const active = button.dataset.category === category;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-pressed", String(active));
+        });
+        filterStatus.textContent = `Showing ${visibleCount} of ${places.length} places.`;
+      }
+
+      filterButtons.forEach((button) => {
+        button.addEventListener("click", () =>
+          filterPlaces(button.dataset.category),
+        );
+      });
+      filterPlaces("all");
+
+      const locateButton = document.getElementById("locate");
+      const stopButton = document.getElementById("stop-location");
+      const locationStatus = document.getElementById("location-status");
+      const locationIcon = L.divIcon({
+        className: "user-location-dot",
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+      });
+      let watchId = null;
+      let locationMarker = null;
+      let accuracyCircle = null;
+      let centerOnNextFix = false;
+
+      const destinationSelect = document.getElementById("destination-select");
+      const routingDistance = document.getElementById("routing-distance");
+      const travelMode = document.getElementById("travel-mode");
+      const directionsButton = document.getElementById("get-directions");
+      const googleMapsButton = document.getElementById("open-google-maps");
+      let routeLine = null;
+      let routeRequested = false;
+
+      function clearRoute() {
+        if (routeLine) map.removeLayer(routeLine);
+        routeLine = null;
+      }
+      places.forEach((shop, index) => {
+        const option = document.createElement("option");
+        option.value = String(index);
+        option.textContent = shop.name;
+        destinationSelect.appendChild(option);
+      });
+
+      function updateDestinationDistance() {
+        directionsButton.disabled =
+          destinationSelect.value === "" || routeRequested;
+        directionsButton.textContent = routeRequested
+          ? "Finding your location..."
+          : "Get Route";
+        googleMapsButton.disabled = destinationSelect.value === "";
+        if (destinationSelect.value === "") {
+          routingDistance.textContent = "";
+          return;
+        }
+        if (!locationMarker) {
+          routingDistance.textContent =
+            'Tap "Get Route" or "Show my location" and allow location access. Google Maps also works without sharing location here.';
+          return;
+        }
+        const shop = places[Number(destinationSelect.value)];
+        if (routeLine) {
+          routeLine.setLatLngs([locationMarker.getLatLng(), shop.coords]);
+        }
+        const meters = locationMarker
+          .getLatLng()
+          .distanceTo(L.latLng(shop.coords));
+        routingDistance.textContent = `Straight-line distance to ${shop.name}: ${(meters / 1609.344).toFixed(2)} miles (not walking or driving distance).`;
+      }
+
+      destinationSelect.addEventListener("change", () => {
+        routeRequested = false;
+        clearRoute();
+        updateDestinationDistance();
+        if (destinationSelect.value === "") return;
+        const { shop, marker } = shopMarkers[Number(destinationSelect.value)];
+        if (!map.hasLayer(marker)) filterPlaces("all");
+        map.setView(shop.coords, 17);
+        marker.openPopup();
+      });
+
+      directionsButton.addEventListener("click", () => {
+        if (destinationSelect.value === "") return;
+        if (!locationMarker) {
+          routeRequested = true;
+          updateDestinationDistance();
+          locateButton.click();
+          return;
+        }
+        clearRoute();
+        const shop = places[Number(destinationSelect.value)];
+        const marker = shopMarkers[Number(destinationSelect.value)].marker;
+        if (!map.hasLayer(marker)) filterPlaces("all");
+        routeLine = L.polyline([locationMarker.getLatLng(), shop.coords], {
+          color: "#285c3b",
+          weight: 5,
+          opacity: 0.85,
+          dashArray: "10, 8",
+        })
+          .addTo(map)
+          .bindTooltip("Direct connection — not a street or walking path");
+        map.fitBounds(routeLine.getBounds(), {
+          padding: [40, 40],
+          maxZoom: 17,
+        });
+        updateDestinationDistance();
+        routingDistance.textContent =
+          "Route line drawn. " + routingDistance.textContent;
+        map.closePopup();
+        document.getElementById("map").scrollIntoView({ block: "center" });
+      });
+
+      googleMapsButton.addEventListener("click", () => {
+        if (destinationSelect.value === "") return;
+        const shop = places[Number(destinationSelect.value)];
+        const url = new URL("https://www.google.com/maps/dir/");
+        url.searchParams.set("api", "1");
+        url.searchParams.set("destination", shop.coords.join(","));
+        url.searchParams.set("travelmode", travelMode.value);
+        if (locationMarker) {
+          const origin = locationMarker.getLatLng();
+          url.searchParams.set("origin", `${origin.lat},${origin.lng}`);
+        }
+        window.open(url.toString(), "_blank", "noopener,noreferrer");
+      });
+
+      function stopTracking() {
+        routeRequested = false;
+        clearRoute();
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        if (locationMarker) map.removeLayer(locationMarker);
+        if (accuracyCircle) map.removeLayer(accuracyCircle);
+        locationMarker = null;
+        accuracyCircle = null;
+        updateDestinationDistance();
+        stopButton.hidden = true;
+        locateButton.textContent = "Show my location";
+      }
+
+      locateButton.addEventListener("click", () => {
+        if (!window.isSecureContext) {
+          routeRequested = false;
+          updateDestinationDistance();
+          locationStatus.textContent =
+            "Location requires HTTPS or localhost. Open this map from a secure website, or use localhost on this device.";
+          return;
+        }
+        if (!navigator.geolocation) {
+          routeRequested = false;
+          updateDestinationDistance();
+          locationStatus.textContent =
+            "This browser does not support location. Try opening the map in a current browser.";
+          return;
+        }
+        if (locationMarker) {
+          map.setView(locationMarker.getLatLng(), 17);
+          locationMarker.openPopup();
+          return;
+        }
+        if (watchId !== null) return;
+        centerOnNextFix = true;
+        locationStatus.textContent =
+          "Finding your location… Allow location access when your browser asks.";
+        locateButton.textContent = "Finding location…";
+        stopButton.hidden = false;
+        watchId = navigator.geolocation.watchPosition(
+          (position) => {
+            const coords = [
+              position.coords.latitude,
+              position.coords.longitude,
+            ];
+            const accuracy = position.coords.accuracy;
+            if (!locationMarker) {
+              accuracyCircle = L.circle(coords, {
+                radius: accuracy,
+                color: "#1677ff",
+                weight: 1,
+                fillOpacity: 0.1,
+                interactive: false,
+              }).addTo(map);
+              locationMarker = L.marker(coords, {
+                icon: locationIcon,
+                title: "You are here",
+                zIndexOffset: 1000,
+              })
+                .addTo(map)
+                .bindPopup("");
+            } else {
+              locationMarker.setLatLng(coords);
+              accuracyCircle.setLatLng(coords).setRadius(accuracy);
+            }
+            locationMarker.setPopupContent(
+              `You are here<br>Estimated accuracy: ${Math.round(accuracy)} meters`,
+            );
+            updateDestinationDistance();
+            locationStatus.textContent = `Location updated ${new Date(position.timestamp).toLocaleTimeString()}. Estimated accuracy: ${Math.round(accuracy)} meters. The blue circle shows the accuracy area.`;
+            locateButton.textContent = "Center on my location";
+            if (centerOnNextFix) {
+              map.fitBounds(accuracyCircle.getBounds(), {
+                maxZoom: 17,
+                padding: [30, 30],
+              });
+              locationMarker.openPopup();
+              centerOnNextFix = false;
+            }
+            if (routeRequested) {
+              routeRequested = false;
+              updateDestinationDistance();
+              directionsButton.click();
+            }
+          },
+          (error) => {
+            stopTracking();
+            const messages = {
+              1: "Location access was denied. Allow location for this page in your browser settings, then try again.",
+              2: "Your location is unavailable. Check that device location services are enabled, then try again.",
+              3: "Finding your location timed out. Move near a window or outdoors, then try again.",
+            };
+            locationStatus.textContent =
+              messages[error.code] ||
+              "Unable to find your location. Please try again.";
+          },
+          { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+        );
+      });
+      stopButton.addEventListener("click", () => {
+        stopTracking();
+        locationStatus.textContent = "Location tracking stopped.";
+      });
+      window.addEventListener("pagehide", stopTracking);
+      window.addEventListener("pageshow", updateDestinationDistance);
+    </script>
+  </body>
+</html>

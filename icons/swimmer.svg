@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-labelledby="title">
+  <title id="title">Swimmer in blue water</title>
+  <g stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" paint-order="stroke fill">
+    <circle cx="35" cy="15" r="6" fill="#ffb547"/>
+    <path d="M10 28 23 18 15 11 7 17" fill="none" stroke-width="9"/>
+    <path d="M10 28 23 18 15 11 7 17" fill="none" stroke="#f97316" stroke-width="5"/>
+    <path d="M4 31 Q9 25 14 31 T24 31 T34 31 T44 31" fill="none" stroke-width="7"/>
+    <path d="M4 31 Q9 25 14 31 T24 31 T34 31 T44 31" fill="none" stroke="#0284c7" stroke-width="4"/>
+    <path d="M4 41 Q9 35 14 41 T24 41 T34 41 T44 41" fill="none" stroke-width="7"/>
+    <path d="M4 41 Q9 35 14 41 T24 41 T34 41 T44 41" fill="none" stroke="#06b6d4" stroke-width="4"/>
+  </g>
+</svg>

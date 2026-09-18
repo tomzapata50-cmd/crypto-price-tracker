@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" role="img" aria-labelledby="title">
+  <title id="title">Christmas ornament</title>
+  <path d="M13 6V4a3 3 0 0 1 6 0v2" fill="none" stroke="#ffffff" stroke-width="4"/>
+  <path d="M13 6V4a3 3 0 0 1 6 0v2" fill="none" stroke="#b7791f" stroke-width="2"/>
+  <circle cx="16" cy="19" r="12" fill="#dc2626" stroke="#ffffff" stroke-width="2"/>
+  <path d="M5 20q11 8 22 0" fill="none" stroke="#facc15" stroke-width="3"/>
+  <rect x="11" y="5" width="10" height="5" rx="1.5" fill="#facc15" stroke="#b7791f"/>
+  <ellipse cx="11" cy="15" rx="2" ry="3" transform="rotate(35 11 15)" fill="#ffffff" opacity=".75"/>
+  <path d="m21 12 .8 2.2L24 15l-2.2.8L21 18l-.8-2.2L18 15l2.2-.8Z" fill="#fff7cc"/>
+</svg>

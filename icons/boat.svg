@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" role="img" aria-labelledby="title">
+  <title id="title">Riverboat on blue water</title>
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <path d="M17 4v6" stroke="#ffffff" stroke-width="5"/>
+    <path d="M17 4v6" stroke="#dc2626" stroke-width="3"/>
+    <path d="M8 18V10h15l3 8" fill="#fff8dc" stroke="#ffffff" stroke-width="2"/>
+    <path d="M7 10h17" stroke="#dc2626" stroke-width="3"/>
+    <path d="M11 13v2m5-2v2m5-2v2" stroke="#0284c7" stroke-width="3"/>
+    <path d="m2 18 5 8h18l5-8Z" fill="#dc2626" stroke="#ffffff" stroke-width="2"/>
+    <path d="M9 21h14" stroke="#facc15" stroke-width="2"/>
+    <path d="M2 28q3-4 7 0t7 0t7 0t7 0" fill="none" stroke="#ffffff" stroke-width="5"/>
+    <path d="M2 28q3-4 7 0t7 0t7 0t7 0" fill="none" stroke="#0284c7" stroke-width="3"/>
+  </g>
+</svg>
